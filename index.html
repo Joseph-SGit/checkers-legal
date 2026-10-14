@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Center | Checkers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-navy: #225be0;
+      --navy-dark: #051650;
+      --navy-deep: #00072d;
+      --navy-light: #4a72e8;
+      --bg-canvas: #edf4fc;
+      --surface-card: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #50607f;
+      --border-color: #c5d0e8;
+      --green-accent: #10b981;
+      --red-accent: #ef4444;
+      --gold-accent: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-dark);
+      line-height: 1.65;
+      padding-bottom: 60px;
+    }
+
+    /* Hero Header with Checkers Aesthetic */
+    .hero {
+      background: linear-gradient(135deg, #123499 0%, var(--primary-navy) 55%, #0d2e88 100%);
+      color: #ffffff;
+      padding: 48px 20px 38px;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(5, 22, 80, 0.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle Checkered Overlay Pattern */
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%);
+      background-size: 32px 32px;
+      background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-pieces {
+      display: inline-flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    /* 3D Circular Checker Discs for the Logo */
+    .hero-disc {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: 900;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .hero-disc.white-piece {
+      background: #ffffff;
+      color: var(--primary-navy);
+      border: 2px solid #cbd5e1;
+      box-shadow: 0 3px 0 #94a3b8;
+    }
+
+    .hero-disc.dark-piece {
+      background: var(--navy-dark);
+      color: #ffffff;
+      border: 2px solid #00072d;
+      box-shadow: 0 3px 0 #000414;
+    }
+
+    .hero h1 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .hero p {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0.94;
+      color: #dbeafe;
+    }
+
+    /* Container & Tab Controls */
+    .container {
+      max-width: 900px;
+      margin: -24px auto 0;
+      padding: 0 16px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .tab-nav-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .tab-nav {
+      background: #ffffff;
+      padding: 6px;
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(5, 22, 80, 0.12);
+      display: inline-flex;
+      gap: 6px;
+      border: 1.5px solid var(--border-color);
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-muted);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary-navy);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--navy-light), var(--primary-navy));
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(34, 91, 224, 0.35);
+    }
+
+    /* Content Cards */
+    .content-card {
+      background: var(--surface-card);
+      border-radius: 24px;
+      padding: 38px 34px;
+      box-shadow: 0 12px 32px rgba(5, 22, 80, 0.08);
+      border: 1.5px solid var(--border-color);
+      display: none;
+    }
+
+    .content-card.active {
+      display: block;
+      animation: tabFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #dbeafe;
+      color: var(--primary-navy);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--navy-dark);
+      margin-bottom: 6px;
+    }
+
+    .card-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 26px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Typography & Sections */
+    h2 {
+      font-size: 18.5px;
+      font-weight: 800;
+      color: var(--primary-navy);
+      margin: 28px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 4px solid var(--primary-navy);
+      padding-left: 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 18px 0 8px;
+      color: var(--navy-dark);
+    }
+
+    p, li {
+      font-size: 14.5px;
+      color: #334155;
+      margin-bottom: 12px;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    strong {
+      color: var(--navy-dark);
+    }
+
+    /* Callout Boxes */
+    .callout-box {
+      background: var(--bg-canvas);
+      border-left: 4px solid var(--primary-navy);
+      padding: 16px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+
+    .callout-box p {
+      margin-bottom: 0;
+      font-size: 14px;
+    }
+
+    .callout-box a {
+      color: var(--primary-navy);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .callout-success {
+      background: #f0fdf4;
+      border-left: 4px solid var(--green-accent);
+      color: #14532d;
+    }
+
+    .callout-info {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary-navy);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--primary-navy);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 38px 16px 28px; }
+      .content-card { padding: 24px 18px; border-radius: 18px; }
+      .tab-btn { padding: 10px 16px; font-size: 13px; }
+      .hero-disc { width: 30px; height: 30px; font-size: 14px; }
+      .card-title { font-size: 24px; }
+      h2 { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Hero Header -->
+  <header class="hero">
+    <div class="hero-content">
+      <div class="hero-pieces">
+        <div class="hero-disc dark-piece">C</div>
+        <div class="hero-disc white-piece">H</div>
+        <div class="hero-disc dark-piece">E</div>
+        <div class="hero-disc white-piece">C</div>
+        <div class="hero-disc dark-piece">K</div>
+        <div class="hero-disc white-piece">E</div>
+        <div class="hero-disc dark-piece">R</div>
+        <div class="hero-disc white-piece">S</div>
+      </div>
+      <h1>Checkers</h1>
+      <p>Official Legal &amp; Privacy Compliance Portal &bull; Iconic Studios</p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Tab Switcher -->
+    <div class="tab-nav-wrapper">
+      <nav class="tab-nav" aria-label="Legal document selection">
+        <button id="tab-privacy-btn" class="tab-btn active" onclick="switchTab('privacy')">
+          🛡️ Privacy Policy
+        </button>
+        <button id="tab-terms-btn" class="tab-btn" onclick="switchTab('terms')">
+          📜 Terms of Service
+        </button>
+      </nav>
+    </div>
+
+    <!-- ==================== TAB 1: PRIVACY POLICY ==================== -->
+    <article id="tab-privacy" class="content-card active" aria-labelledby="privacy-heading">
+      <span class="badge-pill">Compliance &amp; Data Safety</span>
+      <h1 id="privacy-heading" class="card-title">Privacy Policy</h1>
+      <div class="card-meta">
+        App: Checkers &bull; Developer: Joseph Solomon &bull; Effective: October 2026
+      </div>
+
+      <div class="callout-box callout-success">
+        <strong>Privacy-First Architecture:</strong> Checkers is built as a 100% offline-first board game. The app requires no user accounts, no social sign-ins, and no cloud databases. All game statistics, difficulty milestones, and session saves remain strictly on your physical device.
+      </div>
+
+      <h2>1. Overview &amp; Data Controller</h2>
+      <p>This Privacy Policy explains how <strong>Joseph Solomon</strong> ("Developer", "we", "us", or "our") manages information in connection with the mobile application <strong>Checkers</strong> distributed via the Google Play Store.</p>
+      <p>By installing and playing Checkers, you acknowledge the terms outlined herein. If you do not agree with these practices, please uninstall the application.</p>
+
+      <h2>2. Information Stored Locally on Your Device</h2>
+      <p>All core gameplay progression and customization data is saved strictly to your device's isolated internal storage via <code>AsyncStorage</code>:</p>
+      <ul>
+        <li><strong>Game Preferences:</strong> Toggles for audio sound effects, tactile haptic vibrations, selected board themes, and rule options.</li>
+        <li><strong>Match Statistics:</strong> Total matches played, won, lost, and drawn across all 10 difficulty levels and all 7 rule variations (English, Russian, Brazilian, International 10&times;10, Italian, Turkish, and Thai).</li>
+        <li><strong>Active Match Sessions:</strong> Move history recorded in standard algebraic notation, board tile arrangements, captured piece tallies, and turn indicators allowing interrupted matches to resume seamlessly.</li>
+        <li><strong>Local Pass &amp; Play Seat Names:</strong> Custom player names entered for local multiplayer games (e.g., "Player 1", "Player 2"). These names are kept exclusively on your physical device and are never transmitted to any external server.</li>
+      </ul>
+      <p>You can erase all of this local data at any time by tapping <strong>"Reset All Statistics"</strong> in the in-game Settings screen, clearing the app's cache in your Android settings, or uninstalling the app.</p>
+
+      <h2>3. Information We Do NOT Collect</h2>
+      <p>Because Checkers operates locally on your device without proprietary backend servers, we do not collect, process, or sell:</p>
+      <ul>
+        <li>Personal identifying information (real names, physical addresses, phone numbers, or email addresses).</li>
+        <li>Account login credentials or social network profiles.</li>
+        <li>Microphone or voice recordings (the app plays local sound effects only and never listens to audio).</li>
+        <li>Camera, photo gallery, or device contact lists.</li>
+        <li>Precise GPS location data.</li>
+      </ul>
+
+      <h2>4. Third-Party Advertising (Google AdMob)</h2>
+      <p>Checkers is a free-to-play mobile application supported by third-party advertising via the <strong>Google Mobile Ads SDK (AdMob)</strong>. The application presents three standard ad formats:</p>
+      <ul>
+        <li><strong>Banner Ads:</strong> Rendered at the bottom of the game arena.</li>
+        <li><strong>Periodic Interstitial Ads:</strong> Fullscreen video or static ads served at natural stopping points—specifically <strong>once every three (3) completed games</strong> when returning to the menu or beginning a rematch. Interstitials never interrupt active gameplay.</li>
+        <li><strong>Voluntary Rewarded Video Ads:</strong> Optional ads that users voluntarily choose to watch to earn in-game move utilities (Undos or Hints) once their free match allowance is exhausted.</li>
+      </ul>
+
+      <h3>AdMob Technical Data Processing</h3>
+      <p>Our code configures ad requests to request <strong>non-personalized ads</strong> (<code>requestNonPersonalizedAdsOnly: true</code>). However, Google AdMob and its certified partners automatically process certain technical telemetry to deliver ads, prevent invalid traffic, and enforce frequency caps:</p>
+      <ul>
+        <li>Google Advertising ID (AAID / GAID).</li>
+        <li>IP address (used to infer broad non-precise geographic region, such as country or city).</li>
+        <li>Device brand, model, operating system version, and system language.</li>
+        <li>Ad interaction metrics, completion telemetry, and crash diagnostics.</li>
+      </ul>
+      <p>For more details on how Google processes ad data, consult <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">How Google uses information from sites or apps that use our services</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+
+      <h2>5. Device Permissions &amp; Hardware Clarity</h2>
+      <ul>
+        <li><strong>INTERNET &amp; ACCESS_NETWORK_STATE:</strong> Used exclusively to request advertisements through Google AdMob and verify rewarded ad completions.</li>
+        <li><strong>VIBRATE:</strong> Used solely to generate tactile haptic feedback during piece movement, captures, promotions, and invalid move alerts. Can be toggled off anytime in Settings.</li>
+        <li><strong>Microphone Clarification:</strong> While underlying audio frameworks (<code>expo-audio</code>) may include manifest tags, Checkers <strong>does not record audio, access the microphone, or process voice data</strong>.</li>
+        <li><strong>Storage:</strong> The app operates strictly within its sandboxed internal container. It does not access, read, or modify public shared storage or personal photo libraries.</li>
+      </ul>
+
+      <h2>6. Push Notifications</h2>
+      <p>Checkers may schedule local on-device notifications for match reminders. All scheduling happens locally via device timers. We do not harvest, store, or transmit remote push notification tokens (FCM / APNs) to any external server.</p>
+
+      <h2>7. Children's Privacy (COPPA &amp; GDPR-K)</h2>
+      <p>Checkers is designed for a general audience aged <strong>13 and older</strong>. We do not knowingly collect personal information from children under the age of 13. If you believe a child has provided device-identifying data to third-party ad networks, please contact us so we can investigate.</p>
+
+      <h2>8. User Rights &amp; Data Deletion</h2>
+      <p>You maintain full control over your locally stored information:</p>
+      <ul>
+        <li><strong>Reset In-App:</strong> Tap <em>Settings &gt; Reset All Statistics</em> within the game to wipe all match records and progression.</li>
+        <li><strong>Android System Reset:</strong> Navigate to <em>Settings &gt; Apps &gt; Checkers &gt; Storage &gt; Clear Data</em>.</li>
+        <li><strong>Ad Personalization Opt-Out:</strong> You can reset or delete your advertising identifier at any time via <em>Settings &gt; Google &gt; Ads &gt; Delete advertising ID</em>.</li>
+      </ul>
+
+      <h2>9. Contact Us</h2>
+      <p>If you have any questions or feedback regarding this Privacy Policy, please reach out:</p>
+      <div class="callout-box callout-info">
+        <strong>Developer:</strong> Joseph Solomon<br />
+        <strong>Studio:</strong> Iconic Studios<br />
+        <strong>Email:</strong> <a href="mailto:josephsolomon802@gmail.com">josephsolomon802@gmail.com</a><br />
+        <strong>Jurisdiction:</strong> Ethiopia
+      </div>
+    </article>
+
+    <!-- ==================== TAB 2: TERMS OF SERVICE ==================== -->
+    <article id="tab-terms" class="content-card" aria-labelledby="terms-heading">
+      <span class="badge-pill">User Agreement</span>
+      <h1 id="terms-heading" class="card-title">Terms of Service</h1>
+      <div class="card-meta">
+        App: Checkers &bull; Developer: Joseph Solomon &bull; Effective: October 2026
+      </div>
+
+      <div class="callout-box callout-info">
+        <strong>Agreement:</strong> By installing or playing Checkers, you agree to these Terms of Service. Checkers is a free-to-play mobile application supported by advertisements.
+      </div>
+
+      <h2>1. Acceptance of Terms</h2>
+      <p>These Terms of Service ("Terms") constitute a legally binding agreement between you ("User", "you") and <strong>Joseph Solomon</strong> ("Developer", "we", "us", or "our") governing your use of the <strong>Checkers</strong> mobile application.</p>
+      <p>If you do not agree to these Terms, you must immediately uninstall and discontinue using the application.</p>
+
+      <h2>2. Eligibility &amp; License</h2>
+      <p>You must be at least <strong>13 years old</strong> to use Checkers. Subject to your compliance with these Terms, we grant you a personal, limited, non-exclusive, non-transferable, revocable license to install and run the application on personal Android devices solely for personal, non-commercial entertainment.</p>
+
+      <h2>3. Intellectual Property Rights</h2>
+      <p>The traditional rules and geometric principles of checkers and draughts are historically in the public domain. However, all proprietary aspects of the application, including without limitation:</p>
+      <ul>
+        <li>Source code, board evaluation heuristics, and custom AI search engines (<code>CheckersAiEngine</code>).</li>
+        <li>Custom 3D piece rendering, vector flags, animations, and visual layouts.</li>
+        <li>Synthesized hardwood sound effects, victory fanfares, and audio design.</li>
+        <li>The "Checkers" application packaging, branding, and visual identity.</li>
+      </ul>
+      <p>are the exclusive intellectual property of <strong>Joseph Solomon / Iconic Studios</strong> and are protected by applicable copyright and intellectual property laws.</p>
+
+      <h2>4. Prohibited Conduct &amp; Fair Play</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Decompile, reverse-engineer, disassemble, or extract source code from the application.</li>
+        <li>Use automated scripts, bots, memory-injection tools, or exploits to tamper with gameplay state, AI search calculations, or match statistics.</li>
+        <li>Circumvent or tamper with ad verification mechanisms to fraudulently unlock rewarded perks.</li>
+        <li>Use the application for any unlawful purpose or in violation of any applicable local, national, or international law.</li>
+      </ul>
+
+      <h2>5. Pass &amp; Play Seat Customization</h2>
+      <p>The game provides a local two-player mode (Pass &amp; Play) where players can input custom seat names. These names are displayed exclusively on your physical hardware. You agree not to enter text that is defamatory, offensive, hateful, or infringing upon third-party rights.</p>
+
+      <h2>6. Virtual Utilities &amp; Rewarded Ads</h2>
+      <p>Checkers does not feature paid In-App Purchases (IAP). In-game utilities—specifically move <strong>Undos</strong> and move <strong>Hints</strong>—are provided as virtual perks:</p>
+      <ul>
+        <li>Each match includes a free credit allowance of Undos and Hints. Additional uses can be unlocked by voluntarily viewing rewarded video ads served by Google AdMob.</li>
+        <li>Undos and Hints are virtual game mechanics with <strong>no real-world monetary value</strong>, cannot be redeemed for cash or currency, and are non-transferable.</li>
+        <li>Rewarded ad availability depends on network connectivity and advertiser inventory. We do not guarantee uninterrupted availability of rewarded ads or virtual perks.</li>
+      </ul>
+
+      <h2>7. Advertisements &amp; Third-Party Services</h2>
+      <p>The application is provided free of charge and displays advertisements managed by Google AdMob. We are not responsible for the content, claims, or products advertised by third parties. Your engagement with any advertisement is governed solely by the advertiser's policies.</p>
+
+      <h2>8. Disclaimer of Warranties</h2>
+      <p><strong>Checkers is provided on an "AS-IS" and "AS-AVAILABLE" basis without warranties of any kind, whether express or implied.</strong> To the fullest extent permitted by applicable law, we disclaim all warranties, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+      <p>We do not warrant that gameplay will be uninterrupted, error-free, compatible with every device configuration, or that game state will never be lost in the event of device crash or operating system cleanup.</p>
+
+      <h2>9. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by applicable law, in no event shall <strong>Joseph Solomon</strong> or <strong>Iconic Studios</strong> be liable for any indirect, incidental, special, or consequential damages resulting from your use of or inability to use the game.</p>
+      <p>Because the game is provided free of charge without financial transactions, our maximum aggregate liability to you for any claim arising from these Terms or the application shall not exceed <strong>$0.00 USD</strong>.</p>
+
+      <h2>10. Governing Law &amp; Dispute Resolution</h2>
+      <p>These Terms shall be governed by and construed in accordance with the laws of <strong>Ethiopia</strong>, without regard to conflict of law principles.</p>
+      <p>In the event of any controversy or dispute, you agree to first contact the developer at <a href="mailto:josephsolomon802@gmail.com">josephsolomon802@gmail.com</a> to seek an informal, amicable resolution before initiating formal legal proceedings.</p>
+
+      <h2>11. Modifications &amp; Termination</h2>
+      <p>We reserve the right to update these Terms at any time. Any changes will be reflected on this portal with an updated Effective Date. You may terminate this agreement at any time by uninstalling the application.</p>
+
+      <h2>12. Contact Information</h2>
+      <div class="callout-box callout-info">
+        <strong>Developer:</strong> Joseph Solomon<br />
+        <strong>Studio:</strong> Iconic Studios<br />
+        <strong>Email:</strong> <a href="mailto:josephsolomon802@gmail.com">josephsolomon802@gmail.com</a><br />
+        <strong>Jurisdiction:</strong> Ethiopia
+      </div>
+    </article>
+
+    <footer class="footer">
+      <p>&copy; 2026 Iconic Studios (Joseph Solomon). All rights reserved.</p>
+      <p>Hosted via GitHub Pages &bull; Checkers Official Legal Portal</p>
+    </footer>
+  </main>
+
+  <script>
+    function switchTab(tabKey) {
+      const privacyBtn = document.getElementById('tab-privacy-btn');
+      const termsBtn = document.getElementById('tab-terms-btn');
+      const privacyCard = document.getElementById('tab-privacy');
+      const termsCard = document.getElementById('tab-terms');
+
+      if (tabKey === 'terms') {
+        privacyBtn.classList.remove('active');
+        privacyCard.classList.remove('active');
+        termsBtn.classList.add('active');
+        termsCard.classList.add('active');
+        history.replaceState(null, null, '#terms');
+      } else {
+        termsBtn.classList.remove('active');
+        termsCard.classList.remove('active');
+        privacyBtn.classList.add('active');
+        privacyCard.classList.add('active');
+        history.replaceState(null, null, '#privacy');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Auto-detect URL Hash on page load (#privacy or #terms)
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#terms') {
+        switchTab('terms');
+      } else {
+        switchTab('privacy');
+      }
+    });
+
+    // Handle browser back/forward navigation
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#terms') {
+        switchTab('terms');
+      } else {
+        switchTab('privacy');
+      }
+    });
+  </script>
+</body>
+</html>
